@@ -3,6 +3,11 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 
+// Ensure NextAuth has a secret available during Server-Side Rendering (SSR) of any page
+if (!process.env.NEXTAUTH_SECRET) {
+  process.env.NEXTAUTH_SECRET = "fallback_secret_for_demo_purposes_only_123456789";
+}
+
 const geist = Geist({
   variable: "--font-geist",
   subsets: ["latin"],
