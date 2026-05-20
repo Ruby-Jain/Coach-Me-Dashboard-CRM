@@ -7,13 +7,9 @@ if (!process.env.NEXTAUTH_SECRET) {
   process.env.NEXTAUTH_SECRET = "fallback_secret_for_demo_purposes_only_123456789";
 }
 
-if (!process.env.NEXTAUTH_URL) {
-  if (process.env.VERCEL_URL) {
-    process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
-  } else if (!process.env.VERCEL) {
-    // Only use localhost fallback if we are not on Vercel
-    process.env.NEXTAUTH_URL = "http://localhost:3000";
-  }
+if (!process.env.NEXTAUTH_URL && !process.env.VERCEL) {
+  // Only use localhost fallback if we are not on Vercel
+  process.env.NEXTAUTH_URL = "http://localhost:3000";
 }
 
 export const authOptions: AuthOptions = {
