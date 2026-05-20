@@ -1,16 +1,12 @@
 import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
-import type { Adapter } from "next-auth/adapters";
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID || "dummy-client-id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "dummy-client-secret",
     }),
     CredentialsProvider({
       name: "Demo Account",
@@ -22,19 +18,13 @@ export const authOptions: AuthOptions = {
         const email = credentials?.email || "demo@coachme.com";
         const name = email.split('@')[0];
         
-        let user = await prisma.user.findUnique({
-          where: { email }
-        });
-        
-        if (!user) {
-          user = await prisma.user.create({
-            data: {
-              email,
-              name: name.charAt(0).toUpperCase() + name.slice(1),
-              image: "/profile.jpg",
-            }
-          });
-        }
+        // Return a mock user profile instead of querying database
+        const user = {
+          id: "demo-user-id-" + name.toLowerCase(),
+          email,
+          name: name.charAt(0).toUpperCase() + name.slice(1),
+          image: "/profile.jpg",
+        };
         
         return user;
       }
