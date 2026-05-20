@@ -21,6 +21,20 @@ export default function RootLayout({
   return (
     <html lang="en" className={`dark ${geist.variable} antialiased`} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              const theme = localStorage.getItem('theme') || 'dark';
+              if (theme === 'light') {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+              } else {
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
+              }
+            } catch (e) {}
+          })();
+        ` }} />
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"

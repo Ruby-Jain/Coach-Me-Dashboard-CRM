@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -9,11 +9,33 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
   const pathname = usePathname();
   const { data: session } = useSession();
 
+  const [profile, setProfile] = useState({
+    name: "Ruby Jain",
+    location: "Pune, India"
+  });
+
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  useEffect(() => {
+    const updateProfile = () => {
+      const storedName = localStorage.getItem("profile_name");
+      const storedLocation = localStorage.getItem("profile_location");
+      setProfile({
+        name: storedName || "Ruby Jain",
+        location: storedLocation || "Pune, India"
+      });
+    };
+
+    updateProfile();
+    window.addEventListener("profileUpdate", updateProfile);
+    return () => {
+      window.removeEventListener("profileUpdate", updateProfile);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
@@ -59,7 +81,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
               <img 
-                alt="Ruby Jain" 
+                alt={profile.name} 
                 className={`rounded-full border-2 border-primary/30 object-cover shadow-[0_0_15px_rgba(164,230,255,0.2)] transition-all duration-300 ${isOpen ? 'w-14 h-14' : 'w-10 h-10'}`} 
                 src="/profile.jpg"
               />
@@ -67,7 +89,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             </div>
             {isOpen && (
               <div className="flex flex-col animate-fade-in">
-                <span className="font-headline-md text-headline-md text-on-surface">Ruby Jain</span>
+                <span className="font-headline-md text-headline-md text-on-surface">{profile.name}</span>
                 <span className="text-label-sm font-label-sm text-outline uppercase tracking-widest">Sales Director</span>
               </div>
             )}
@@ -75,7 +97,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
           {isOpen && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 self-start animate-fade-in">
               <span className="material-symbols-outlined text-[14px] text-primary">location_on</span>
-              <span className="text-[11px] font-medium text-on-surface-variant uppercase tracking-tighter">Pune, India</span>
+              <span className="text-[11px] font-medium text-on-surface-variant uppercase tracking-tighter">{profile.location}</span>
             </div>
           )}
         </div>
