@@ -2,15 +2,7 @@ import NextAuth, { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// Prevent NextAuth from throwing "Configuration" error on production environments (e.g., Vercel)
-if (!process.env.NEXTAUTH_SECRET) {
-  process.env.NEXTAUTH_SECRET = "fallback_secret_for_demo_purposes_only_123456789";
-}
 
-if (!process.env.NEXTAUTH_URL && !process.env.VERCEL) {
-  // Only use localhost fallback if we are not on Vercel
-  process.env.NEXTAUTH_URL = "http://localhost:3000";
-}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -60,10 +52,25 @@ export const authOptions: AuthOptions = {
       return session;
     }
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_demo_purposes_only",
+  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_demo_purposes_only_123456789",
 };
 
-const handler = NextAuth(authOptions);
+const handler = (req: Request, ctx: any) => {
+  // Inject env variables dynamically at request time
+  if (!process.env.NEXTAUTH_SECRET) {
+    process.env.NEXTAUTH_SECRET = "fallback_secret_for_demo_purposes_only_123456789";
+  }
+
+  if (!process.env.NEXTAUTH_URL) {
+    const host = req.headers.get("host");
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    if (host) {
+      process.env.NEXTAUTH_URL = `${proto}://${host}`;
+    }
+  }
+
+  return NextAuth(authOptions)(req, ctx);
+};
 
 export { handler as GET, handler as POST };
 
